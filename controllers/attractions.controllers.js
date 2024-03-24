@@ -1,6 +1,6 @@
 const express = require('express');
 
-exports.getAttractions = (req,res)=>{
+exports.getAllAttractions = (req,res)=>{
     res.json("done");
 }
 exports.getAttractionsById = (req,res)=>{

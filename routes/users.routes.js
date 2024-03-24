@@ -6,7 +6,7 @@ const {
   getUserProfile,
   updateUserProfile,
   resetPassword,
-} = require("./controllers/user.controller");
+} = require("./controllers/users.controllers");
 
 router.post("/register", registerUser); // User registration
 router.post("/login", loginUser); // User login
