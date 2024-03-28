@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { fetchedApi } = require("./fetchedApi");
+
 
 exports.getResturantsData = async (coordinates) => {
   try {
@@ -27,7 +27,6 @@ exports.getResturantsData = async (coordinates) => {
     };
 
     return await axios.request(options);
-
   } catch (error) {
     console.error(error);
   }

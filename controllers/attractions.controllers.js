@@ -1,15 +1,32 @@
 const express = require('express');
+const { getAttractionsData } = require('../API/attractoinsApi');
+const { getPlaceCoordinates } = require('../API/getPlaceCoordinates');
 
-exports.getAllAttractions = (req,res)=>{
-    res.json("done");
+exports.getAllAttractions = async (req,res)=>{
+    const location = req.query.location;
+    console.log(location)
+    const coordinatesOfLoaction = await getPlaceCoordinates(location);
+    const response = await getAttractionsData(coordinatesOfLoaction);
+    const attractions = response.data.data;
+    res.json({attractions: attractions})
 }
 exports.getAttractionsById = (req,res)=>{
     const attractionId = req.params.id;
     res.send("the Id is"+ attractionId);
 }
-exports.createAttraction = (req,res)=>{
-    const newattracion = req.body;
-    res.json("this creatAttraction" + newattracion);
+exports.getAttractionsCategories = async (req,res)=>{
+    const location = req.query.location;
+    console.log(location)
+    const coordinatesOfLoaction = await getPlaceCoordinates(location);
+    const response = await getAttractionsData(coordinatesOfLoaction);
+    const attractions = response.data;
+  
+    const categories = [];
+     attractions.data.forEach((el) => {
+         if(el.name && !categories.includes(el.subcategory[0].name)) categories.push(el.subcategory[0].name);
+      });
+
+    res.json({AttractionsCategories: categories})
 }
 exports.updateAttraction = (req,res)=>{
     const id = req.params.id;
