@@ -1,21 +1,18 @@
 const axios = require('axios');
 const { getAttractionsData } = require('./attractoinsApi');
+const { getPlaceCoordinates } = require('./getPlaceCoordinates');
 const { getHotelsData } = require('./hotelsApi');
 const { getResturantsData } = require('./resturantsApi');
 
 exports.fullDataApi = async (req, res) => {
-    const address = req.query.search;
-    const response = await axios.get(`https://nominatim.openstreetmap.org/search?q=${address}&format=json`);
-    const data = response.data;
-    const coordinates = data[0].boundingbox;
+    const location = req.query.search;
+    const coordinatesOfLoaction = await getPlaceCoordinates(location);
 
-    
-
-    const resturantsResponseApi = await getResturantsData(coordinates);
+    const resturantsResponseApi = await getResturantsData(coordinatesOfLoaction);
     const resturantsData = resturantsResponseApi.data.data;
-    const hotelsResponseApi = await getHotelsData(coordinates);
+    const hotelsResponseApi = await getHotelsData(coordinatesOfLoaction);
     const hotelsData = hotelsResponseApi.data.data;
-    const attractionsResponseApi = await getAttractionsData(coordinates);
+    const attractionsResponseApi = await getAttractionsData(coordinatesOfLoaction);
     const attractionsData = attractionsResponseApi.data.data;
 
 

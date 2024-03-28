@@ -7,7 +7,7 @@ exports.getAttractionsData = async (coordinates) => {
     const TR_LAT = coordinates[1];
     const BL_LON = coordinates[2];
     const TR_LON = coordinates[3];
-    
+
     const options = {
       method: 'GET',
       url: 'https://travel-advisor.p.rapidapi.com/attractions/list-in-boundary',
@@ -16,7 +16,7 @@ exports.getAttractionsData = async (coordinates) => {
         tr_latitude: TR_LAT,
         bl_longitude: BL_LON,
         tr_longitude: TR_LON,
-        limit: '10',
+        limit: '30',
         currency: 'USD',
         lang: 'en_US'
       },
