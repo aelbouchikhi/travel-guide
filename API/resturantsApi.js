@@ -27,19 +27,7 @@ exports.getResturantsData = async (coordinates) => {
     };
 
     return await axios.request(options);
-    // const rapidapiData = await axios.request(options);
 
-    // return await rapidapiData.data.data;
-    const listOfData = rapidapiData.data.data;
-    console.log(listOfData);
-    const resturants = listOfData.map((el) => {
-      if (el.name) {
-        console.log(el.name, "---", el.address);
-      }
-    });
-    // console.log(resturants);
-
-    return;
   } catch (error) {
     console.error(error);
   }

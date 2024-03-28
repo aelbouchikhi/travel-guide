@@ -7,9 +7,7 @@ exports.getAttractionsData = async (coordinates) => {
     const TR_LAT = coordinates[1];
     const BL_LON = coordinates[2];
     const TR_LON = coordinates[3];
-
-
-
+    
     const options = {
       method: 'GET',
       url: 'https://travel-advisor.p.rapidapi.com/attractions/list-in-boundary',
@@ -30,12 +28,7 @@ exports.getAttractionsData = async (coordinates) => {
     
     
        return await axios.request(options);
-        const listOfData = rapidapiData.data.data;
-        console.log(listOfData)
-        listOfData.map(el=>{
-            if(el.name) console.log(el.name,'--',el.subcategory[0].name);
-        })
-        res.json({lat: data[0].lat, lon: data[0].lon,data: rapidapiData.data.data})
+
 
     } catch (error) {
         console.error(error);

@@ -8,10 +8,7 @@ exports.fullDataApi = async (req, res) => {
     const response = await axios.get(`https://nominatim.openstreetmap.org/search?q=${address}&format=json`);
     const data = response.data;
     const coordinates = data[0].boundingbox;
-    // const BL_LAT = data[0].boundingbox[0];
-    // const TR_LAT = data[0].boundingbox[1];
-    // const BL_LON = data[0].boundingbox[2];
-    // const TR_LON = data[0].boundingbox[3];
+
     
 
     const resturantsResponseApi = await getResturantsData(coordinates);

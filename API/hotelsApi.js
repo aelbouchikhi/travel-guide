@@ -30,13 +30,7 @@ exports.getHotelsData = async (coordinates) => {
     
     
         return await axios.request(options);
-        
-        const listOfData = rapidapiData.data.data;
-        console.log(listOfData)
-        listOfData.map(el=>{
-            if(el.name) console.log(el.name,'--',el.subcategory[0].name);
-        })
-        res.json({lat: data[0].lat, lon: data[0].lon,data: rapidapiData.data.data})
+
 
     } catch (error) {
         console.error(error);
