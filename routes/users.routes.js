@@ -6,12 +6,15 @@ const {
   getUserProfile,
   updateUserProfile,
   resetPassword,
-} = require("./controllers/users.controllers");
+  verifyEmail,
+} = require("../controllers/users.controllers");
+const { upload } = require("../helpers/multer.helpers");
 
-router.post("/register", registerUser); // User registration
-router.post("/login", loginUser); // User login
-router.post("/resetPassword", resetPassword); // Reset User Password
-router.get("/profile", getUserProfile); // Get user profile
-router.put("/profile", updateUserProfile); // Update user profile
+usersRouter.post("/register", upload.single("images"), registerUser); // User registration
+usersRouter.post("/login", loginUser); // User login
+usersRouter.post("/resetPassword", resetPassword); // Reset User Password
+usersRouter.get("/verify/:token", verifyEmail);
+// usersRouter.get("/profile", getUserProfile); // Get user profile
+// usersRouter.put("/profile", updateUserProfile); // Update user profile
 
 module.exports = usersRouter;

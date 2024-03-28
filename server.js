@@ -5,7 +5,10 @@ const searchRouter = require("./routes/searchRouter");
 
 const MainRouter = require("./routes/MainRouter");
 const app = express();
+const cookieParser = require('cookie-parser');
+const { mongoose } = require("./config/mongoose.config");
 
+app.use(cookieParser());
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 

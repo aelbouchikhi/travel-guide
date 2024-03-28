@@ -6,12 +6,13 @@ const MainRouter = express.Router();
 // const hotelsRouter = require("./hotels.routes");
 // const restaurantsRouter = require("./restaurants.routes");
 const attractionsRouter = require("./attractions.routes");
+const usersRouter = require("./users.routes");
 // const reviewsRouter = require("./reviews.routes");
 
-// MainRouter.use("/users", usersRouter);
+MainRouter.use("/users", usersRouter);
 // MainRouter.use("/hotels", hotelsRouter);
 // MainRouter.use("/restaurants", restaurantsRouter);
-MainRouter.use("/attractions", attractionsRouter);
+// MainRouter.use("/attractions", attractionsRouter);
 // MainRouter.use("/reviews", reviewsRouter);
 
 module.exports = MainRouter;
