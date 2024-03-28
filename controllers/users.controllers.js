@@ -1,23 +1,14 @@
-
-
 const { generateToken, verifyToken } = require("../helpers/jwt");
-const {
-  hashedPassword,
-  matshPassword,
-} = require("../helpers/hashPassword.helpers");
+const { hashedPassword, matshPassword } = require("../helpers/hashPassword.helpers");
 const { findUseremail } = require("../helpers/findUserEmail.helpers");
 const userSchema = require("../models/schema/user.schema");
-const {generateToken} = require('../helpers/jwt')
-const {hashedPassword, matshPassword} = require('../helpers/hashPassword.helpers');
-const { findUseremail} = require('../helpers/findUserEmail.helpers');
-const userSchema = require('../models/schema/user.schema')
-const jwt = require('jsonwebtoken')
 
 exports.registerUser = async (req, res) => {
   try {
     const { username, email, password, age, sex, country, phoneNumber } =
       req.body;
-    // const imageprofile = req.file.filename;
+      // console.log(req);
+    const imageprofile = req.file.filename;
     const passhash = await hashedPassword(password);
     const newuser = new userSchema({
       username,
@@ -27,7 +18,7 @@ exports.registerUser = async (req, res) => {
       sex,
       country,
       phoneNumber,
-      // image: imageprofile
+      image: imageprofile
     });
     const userRegisterd = await newuser.save();
     res.status(201).json(userRegisterd);
@@ -36,6 +27,7 @@ exports.registerUser = async (req, res) => {
     res.status(500).send(err.message);
   }
 };
+
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;

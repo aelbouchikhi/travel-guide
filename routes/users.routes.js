@@ -9,7 +9,7 @@ const {
   resetPassword,
   verifyEmail,
 } = require("../controllers/users.controllers");
-const { upload } = require("../helpers/multer.helpers");
+const { upload } = require("../middleware/multer.helpers");
 const { isAuth } = require("../middleware/isAuth.middleware");
 
 usersRouter.post("/register", upload.single("images"), registerUser); // User registration
