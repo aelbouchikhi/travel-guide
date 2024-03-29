@@ -12,8 +12,10 @@ app.use(cookieParser());
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api',searchRouter);
+app.use('/api', searchRouter);
 app.use("/api", MainRouter);
+
+mongoose;
 
 app.listen(server.port, (req, res) => {
   console.log(`App runing on port ${server.port}`);

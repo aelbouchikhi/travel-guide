@@ -5,10 +5,10 @@ const userSchema = require("../models/schema/user.schema");
 
 exports.registerUser = async (req, res) => {
   try {
-    const { username, email, password, age, sex, country, phoneNumber } =
-      req.body;
-      // console.log(req);
-    const imageprofile = req.file.filename;
+    const { username, email, password, age, sex, country, phoneNumber } = req.body;
+    // console.log(req.body);
+    // return;
+    // const imageprofile = req.file.filename;
     const passhash = await hashedPassword(password);
     const newuser = new userSchema({
       username,
@@ -18,7 +18,7 @@ exports.registerUser = async (req, res) => {
       sex,
       country,
       phoneNumber,
-      image: imageprofile
+      // image: imageprofile
     });
     const userRegisterd = await newuser.save();
     res.status(201).json(userRegisterd);
@@ -39,10 +39,7 @@ exports.loginUser = async (req, res) => {
     if (!checkPassword) {
       return res.status(404).send("User not found");
     }
-    const token = await generateToken(
-      { username: User.username, email: User.email, id: User._id },
-      res
-    );
+    const token = await generateToken({ username: User.username, email: User.email, id: User._id }, res);
     res.cookie("tokenLogin", token);
     res.status(200).json(token);
   } catch (err) {
@@ -76,46 +73,46 @@ exports.verifyEmail = async (req, res) => {
   res.redirect("/login");
 };
 
-exports.getUserProfile = async (req,res)=>{
-    const {id} = req.user;
-    try{
-        const userProfile = await userSchema.findById(id)
-        if(userProfile){
-            return res.json(userProfile);
-        }else{
-            return res.status(404).json({message:'Profil introuvable'})
-        };
-    }catch(err){
-        console.log(err)
-        res.status(500).json({message: 'Erreur de serveur'})
-    }
+exports.getUserProfile = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const userProfile = await userSchema.findById(id)
+    if (userProfile) {
+      return res.json(userProfile);
+    } else {
+      return res.status(404).json({ message: 'Profil introuvable' })
+    };
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ message: 'Erreur de serveur' })
+  }
 }
-exports.updateUserProfile = async(req,res)=>{
-    const id = req.user.id
-    try{
-        const updateProile = await userSchema.updateOne({_id: id}, {username, email, password,age,sex,country,phoneNumber}, {new: true})
-        if(updateProile){
-            return res.status(200).json(updateProfile);
-        }else{
-            return res.status(404).json({ message: 'Profil introuvable' });
-        }
-        
-    }catch(err){
-        console.log(err);
-        return res.status(500).json({ message: 'Erreur de serveur' });
+exports.updateUserProfile = async (req, res) => {
+  const id = req.user.id
+  try {
+    const updateProile = await userSchema.updateOne({ _id: id }, { username, email, password, age, sex, country, phoneNumber }, { new: true })
+    if (updateProile) {
+      return res.status(200).json(updateProfile);
+    } else {
+      return res.status(404).json({ message: 'Profil introuvable' });
     }
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: 'Erreur de serveur' });
+  }
 }
-exports.deleteUserProfile = async()=>{
-    const id = req.user.id;
-    try{
-        const deleteProfile = await userSchema.deleteOne({_id: id})
-        if(deleteProfile.deletedCount > 0){
-            return res.status(200).json({ message: 'Profil supprimé avec succès' });
-        }else{
-            return res.status(404).json({ message: 'Profil introuvable' });
-        }
-    }catch(err){
-        console.log(err)
-        return res.send(500).json({ message: 'Erreur de serveur' });
+exports.deleteUserProfile = async () => {
+  const id = req.user.id;
+  try {
+    const deleteProfile = await userSchema.deleteOne({ _id: id })
+    if (deleteProfile.deletedCount > 0) {
+      return res.status(200).json({ message: 'Profil supprimé avec succès' });
+    } else {
+      return res.status(404).json({ message: 'Profil introuvable' });
     }
+  } catch (err) {
+    console.log(err)
+    return res.send(500).json({ message: 'Erreur de serveur' });
+  }
 }
