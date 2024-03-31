@@ -1,4 +1,3 @@
-const express = require('express');
 
 exports.getAllAttractions = (req,res)=>{
     res.json("done");
