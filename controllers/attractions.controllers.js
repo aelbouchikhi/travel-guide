@@ -1,24 +1,48 @@
 const express = require('express');
 const { getAttractionsData } = require('../API/attractoinsApi');
+const { getDetailsApi } = require('../API/getDetailsApi');
 const { getPlaceCoordinates } = require('../API/getPlaceCoordinates');
+const { getPlaceData } = require('../API/getPlaceDataApi');
+const { checkQueries } = require('../models/methods/checkQueries');
 
-exports.getAllAttractions = async (req,res)=>{
-    const location = req.query.location;
-    console.log(location)
-    const coordinatesOfLoaction = await getPlaceCoordinates(location);
-    const response = await getAttractionsData(coordinatesOfLoaction);
-    const attractions = response.data.data;
-    res.json({attractions: attractions})
+// exports.getAllAttractions = async (req,res)=>{
+//     const location = req.query.location;
+//     console.log(location)
+//     const coordinatesOfLoaction = await getPlaceCoordinates(location);
+//     const response = await getPlaceData(coordinatesOfLoaction,'attractions');
+//     const attractions = response.data.data;
+//     res.json({attractions: attractions})
+// } 
+exports.attractionsQueries = async (req, res)=> {
+    const data = await checkQueries(req, res)
+    res.json({data: data})
 }
-exports.getAttractionsById = (req,res)=>{
-    const attractionId = req.params.id;
-    res.send("the Id is"+ attractionId);
+
+exports.getAttractionsById = async (req,res)=>{
+    const {id} = req.params;
+    const response = await getDetailsApi(id);
+    const attractionDetails =  response.data;
+
+    res.json({Details:{
+        name: attractionDetails.name,
+        address: attractionDetails.address,
+        description: attractionDetails.description,
+        category: attractionDetails.subcategory[0].name,
+        rating: attractionDetails.rating,
+        reviews_number:{
+            total: attractionDetails.num_reviews,
+            count_1: attractionDetails.rating_histogram.count_1,
+            count_2: attractionDetails.rating_histogram.count_2,
+            count_3: attractionDetails.rating_histogram.count_3,
+            count_4: attractionDetails.rating_histogram.count_4,
+            count_5: attractionDetails.rating_histogram.count_5,
+        }
+    }})
 }
 exports.getAttractionsCategories = async (req,res)=>{
     const location = req.query.location;
-    console.log(location)
     const coordinatesOfLoaction = await getPlaceCoordinates(location);
-    const response = await getAttractionsData(coordinatesOfLoaction);
+    const response = await getPlaceData(coordinatesOfLoaction,'attractions');
     const attractions = response.data;
   
     const categories = [];
@@ -28,6 +52,8 @@ exports.getAttractionsCategories = async (req,res)=>{
 
     res.json({AttractionsCategories: categories})
 }
+
+
 exports.updateAttraction = (req,res)=>{
     const id = req.params.id;
     res.json("this is update by id"+ id)
@@ -45,3 +71,4 @@ exports.getNearbyAttractions = (req,res) => {
     const longitude = req.query.long;
     res.json("this is your location"+ latitude + longitude)
 }
+

@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 
-exports.getAttractionsData = async (coordinates) => {
+exports.getPlaceData= async (coordinates, type) => {
     try {
     const BL_LAT = coordinates[0];
     const TR_LAT = coordinates[1];
@@ -10,7 +10,7 @@ exports.getAttractionsData = async (coordinates) => {
 
     const options = {
       method: 'GET',
-      url: 'https://travel-advisor.p.rapidapi.com/attractions/list-in-boundary',
+      url: `https://travel-advisor.p.rapidapi.com/${type}/list-in-boundary `,
       params: {
         bl_latitude: BL_LAT,
         tr_latitude: TR_LAT,
