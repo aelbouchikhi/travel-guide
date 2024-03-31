@@ -12,7 +12,7 @@ const {
 const { upload } = require("../middleware/multer.helpers");
 const { isAuth } = require("../middleware/isAuth.middleware");
 
-usersRouter.post("/register", upload.single("images"), registerUser); // User registration
+usersRouter.post("/register", upload.single("image"), registerUser); // User registration
 usersRouter.post("/login", loginUser); // User login
 usersRouter.post("/resetPassword", resetPassword); // Reset User Password
 usersRouter.get("/verify/:token", verifyEmail);
