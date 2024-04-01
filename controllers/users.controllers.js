@@ -1,9 +1,9 @@
-const { hashPassword } = require("../helpers/hashPassword");
+const { hashPassword, compareHashedPassword } = require("../helpers/hashPassword");
 const { generateToken} = require("../helpers/jwt");
 const { findUser, matchedPassword } = require("../helpers/userQuery");
 const userSchema = require("../models/schema/user.schema");
 
-
+//user register
 exports.userRegister = async (req, res) => {
   try {
     const { username, email, password, age, sex, country, phoneNumber } =
@@ -27,7 +27,7 @@ exports.userRegister = async (req, res) => {
   }
 };
 
-
+//user login 
 exports.userLogin = async (req, res) => {
     try{
       const {email, password} = req.body;
@@ -78,48 +78,53 @@ exports.verifyEmail = async (req, res) => {
 };
 
 exports.getUserProfile = async (req, res) => {
-  const { id } = req.user;
+  const {userId} = req.user;
   try {
-    const userProfile = await userSchema.findById(id);
-    if (userProfile) {
-      return res.json(userProfile);
-    } else {
-      return res.status(404).json({ message: "Profil introuvable" });
-    }
+    const userProfile = await userSchema.findById(userId);
+
+    if(!userProfile) return res.status(404).json({message: 'profile not found'});
+
+    res.status(200).json({message:`welcome to ur profile ${userProfile.username}`, profileData: userProfile})
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Erreur de serveur" });
+    res.status(500).json({ message: err.message });
   }
 };
+
+//update the user profile
 exports.updateUserProfile = async (req, res) => {
-  const id = req.user.id;
-  try {
-    const updateProile = await userSchema.updateOne(
-      { _id: id },
-      { username, email, password, age, sex, country, phoneNumber },
-      { new: true }
-    );
-    if (updateProile) {
-      return res.status(200).json(updateProfile);
-    } else {
-      return res.status(404).json({ message: "Profil introuvable" });
+    const {userId} = req.user;
+
+    if(req.file){
+      const {filename} = req.file;
+      req.body.image = filename
     }
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: "Erreur de serveur" });
-  }
-};
-exports.deleteUserProfile = async () => {
-  const id = req.user.id;
-  try {
-    const deleteProfile = await userSchema.deleteOne({ _id: id });
-    if (deleteProfile.deletedCount > 0) {
-      return res.status(200).json({ message: "Profil supprimé avec succès" });
-    } else {
-      return res.status(404).json({ message: "Profil introuvable" });
+    const user = await userSchema.findById(userId);
+    if(Object.keys(req.body).includes('password')){
+        const newPassword = req.body.password;
+        const verify = await compareHashedPassword(newPassword, user.password)
+        if(!verify){
+          const hashedPassword = await hashPassword(newPassword)
+          req.body.password = hashedPassword;
+          const userUpdate = await userSchema.findByIdAndUpdate(userId, req.body, {new: true});
+          res.json({message: 'profile has been updated successfilly', user: userUpdate});
+        }else{
+          const userUpdate = await userSchema.findByIdAndUpdate(userId, {...req.body,password: user.password}, {new: true});
+          res.json({message: 'profile has been updated successfilly', user: userUpdate});
+        }
+      }else{
+        const userUpdate = await userSchema.findByIdAndUpdate(userId, req.body, {new: true});
+        res.json({message: 'profile has been updated successfilly', user: userUpdate});
+      }
+}
+
+//delete the user profile
+exports.deleteUserProfile = async (req, res) => {
+    try{
+        const {userId} = req.user;
+        const userDelete = await userSchema.findByIdAndDelete(userId);
+        res.json({message: `profile with id ${userId} has been deleted successfilly`});
+    }catch(err){
+        return res.send(500).json({ message: err.message});
     }
-  } catch (err) {
-    console.log(err);
-    return res.send(500).json({ message: "Erreur de serveur" });
-  }
-};
+}
+
