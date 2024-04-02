@@ -9,11 +9,13 @@ const {
   userRegister,
   userLogin,
 } = require("../controllers/users.controllers");
-const { upload } = require("../middleware/multer.helpers");
-const {isAuth} = require('../middleware/isAuth.middleware')
+const { xssMiddleware } = require("../middleware/xss.middleware");
+const { validatorMiddleware } = require("../middleware/expresssValidator.middleware");
+const { upload } = require("../middleware/multer.middleware");
+const { isAuth } = require("../middleware/isAuth.middleware");
 
-usersRouter.post("/register", upload.single("image"), userRegister); // User registration
-usersRouter.post("/login", userLogin); // User login
+usersRouter.post("/register", upload.single("images"), xssMiddleware, validatorMiddleware, registerUser); // User registration
+usersRouter.post("/login", loginUser); // User login
 usersRouter.post("/resetPassword", resetPassword); // Reset User Password
 usersRouter.get("/verify/:token", verifyEmail);
 // usersRouter.get("/profile", getUserProfile); // Get user profile

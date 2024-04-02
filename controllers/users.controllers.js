@@ -1,25 +1,19 @@
-
-
-const { generateToken, verifyToken } = require("../helpers/jwt");
+const { tokenFunction } = require("../helpers/jwt");
 const {
   hashedPassword,
   matshPassword,
-} = require("../helpers/hashPassword.helpers");
-const { findUseremail } = require("../helpers/findUserEmail.helpers");
+  bcryptFunction,
+} = require("../helpers/bcrypt.helpers");
+const { findUseremail, findAndUpdate } = require("../helpers/findUserEmail.helpers");
 const userSchema = require("../models/schema/user.schema");
-const {generateToken} = require('../helpers/jwt')
-const {hashedPassword, matshPassword} = require('../helpers/hashPassword.helpers');
-const { findUseremail} = require('../helpers/findUserEmail.helpers');
-const userSchema = require('../models/schema/user.schema')
-const jwt = require('jsonwebtoken')
+const { SERVER_DATA_CREATED_HTTP_CODE } = require("../config/constants.config");
+const { mailJs } = require("../helpers/emailjs.helpers");
 
 //user register
 exports.userRegister = async (req, res) => {
   try {
-    const { username, email, password, age, sex, country, phoneNumber } =
-      req.body;
-    // const imageprofile = req.file.filename;
-    const passhash = await hashedPassword(password);
+    const { firstname, lastname, username, email, password, age, sex, country, phoneNumber } = req.body;
+    // const { filename } = req.file;
     const newuser = new userSchema({
       firstname,
       lastname,
@@ -30,15 +24,17 @@ exports.userRegister = async (req, res) => {
       sex,
       country,
       phoneNumber,
-      // image: imageprofile
+      // image: filename
     });
-    const userRegisterd = await newuser.save();
-    res.status(201).json(userRegisterd);
+    const userRegistered = await newuser.save();
+    await mailJs.sendMail(username, email);
+    res.status(SERVER_DATA_CREATED_HTTP_CODE).json(userRegistered);
   } catch (err) {
-    console.log("error in register");
+    // console.log("error in register");
     res.status(500).send(err.message);
   }
 };
+
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -46,13 +42,12 @@ exports.loginUser = async (req, res) => {
     if (!User) {
       return res.status(404).send("User not found");
     }
-    const checkPassword = matshPassword(password, User.password);
+    const checkPassword = bcryptFunction.compareHashingPass(password, User.password);
     if (!checkPassword) {
       return res.status(404).send("User not found");
     }
-    const token = await generateToken(
+    const token = await tokenFunction.generateToken(
       { username: User.username, email: User.email, id: User._id },
-      res
     );
     res.cookie("tokenLogin", token);
     res.status(200).json(token);
@@ -80,53 +75,56 @@ exports.resetPassword = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
   const { token } = req.params;
-  const User = verifyToken(token);
+  const User = tokenFunction.verifyToken(token);
+  // console.log(User.email);
   const UserDocument = findUseremail(User.email);
   if (!UserDocument) return res.send(`You Are Not The User ${User.email}`);
-  userSchema.updateOne({ _id: User.id }, { isVerified: true });
-  res.redirect("/login");
+  findAndUpdate({ email: User.email }, { isVerified: true });
+  return res.status(200).json(token);
+  // res.redirect("/login");
 };
 
-exports.getUserProfile = async (req,res)=>{
-    const {id} = req.user;
-    try{
-        const userProfile = await userSchema.findById(id)
-        if(userProfile){
-            return res.json(userProfile);
-        }else{
-            return res.status(404).json({message:'Profil introuvable'})
-        };
-    }catch(err){
-        console.log(err)
-        res.status(500).json({message: 'Erreur de serveur'})
-    }
+exports.getUserProfile = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const userProfile = await userSchema.findById(id)
+    if (userProfile) {
+      return res.json(userProfile);
+    } else {
+      return res.status(404).json({ message: 'Profil introuvable' })
+    };
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ message: 'Erreur de serveur' })
+  }
 }
-exports.updateUserProfile = async(req,res)=>{
-    const id = req.user.id
-    try{
-        const updateProile = await userSchema.updateOne({_id: id}, {username, email, password,age,sex,country,phoneNumber}, {new: true})
-        if(updateProile){
-            return res.status(200).json(updateProfile);
-        }else{
-            return res.status(404).json({ message: 'Profil introuvable' });
-        }
-        
-    }catch(err){
-        console.log(err);
-        return res.status(500).json({ message: 'Erreur de serveur' });
+
+exports.updateUserProfile = async (req, res) => {
+  const id = req.user.id
+  try {
+    const updateProile = await userSchema.updateOne({ _id: id }, { username, email, password, age, sex, country, phoneNumber }, { new: true })
+    if (updateProile) {
+      return res.status(200).json(updateProfile);
+    } else {
+      return res.status(404).json({ message: 'Profil introuvable' });
     }
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: 'Erreur de serveur' });
+  }
 }
-exports.deleteUserProfile = async()=>{
-    const id = req.user.id;
-    try{
-        const deleteProfile = await userSchema.deleteOne({_id: id})
-        if(deleteProfile.deletedCount > 0){
-            return res.status(200).json({ message: 'Profil supprimé avec succès' });
-        }else{
-            return res.status(404).json({ message: 'Profil introuvable' });
-        }
-    }catch(err){
-        console.log(err)
-        return res.send(500).json({ message: 'Erreur de serveur' });
+exports.deleteUserProfile = async () => {
+  const id = req.user.id;
+  try {
+    const deleteProfile = await userSchema.deleteOne({ _id: id })
+    if (deleteProfile.deletedCount > 0) {
+      return res.status(200).json({ message: 'Profil supprimé avec succès' });
+    } else {
+      return res.status(404).json({ message: 'Profil introuvable' });
     }
+  } catch (err) {
+    console.log(err)
+    return res.send(500).json({ message: 'Erreur de serveur' });
+  }
 }

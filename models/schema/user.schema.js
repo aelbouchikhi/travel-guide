@@ -1,42 +1,62 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+    firstname: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    lastname: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     username: {
         type: String,
-        required: false
+        required: false,
+        trim: true, // Removes whitespace from both ends
+        unique: true, // Ensures usernames are unique across documents
+        sparse: true, // Ensures uniqueness is enforced only on documents where username is provided
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true, // Enforces email uniqueness
+        lowercase: true, // Converts email to lowercase to avoid case-sensitive uniqueness issues
+        match: [/.+\@.+\..+/, 'Please fill a valid email address'], // Validates email format
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        minlength: 8, // Ensures password strength
     },
     age: {
         type: Number,
-        required: false
+        required: false,
     },
     country: {
         type: String,
-        required: false
+        required: false,
+        trim: true,
     },
     sex: {
         type: String,
-        required: false
+        enum: ["male", "female"],
+        required: false,
     },
     phoneNumber: {
-        type: Number,
-        required: false
+        type: String, // Changed to String to accommodate various phone number formats
+        required: false,
+        trim: true,
     },
     image: {
         type: String,
-        required: false
+        required: false,
     },
-    isVerified : {
+    isVerified: {
         type: Boolean,
-        default: false
-    },
-});
+        default: false,
+    }
+}, { timestamps: true });
 
 module.exports = mongoose.model('Users', userSchema);
