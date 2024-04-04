@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { bcryptFunction } = require('../../helpers/bcrypt.helpers');
+const { mailJs } = require('../../helpers/emailjs.helpers');
 
 const userSchema = new mongoose.Schema({
     firstname: {
@@ -58,5 +60,32 @@ const userSchema = new mongoose.Schema({
         default: false,
     }
 }, { timestamps: true });
+
+
+userSchema.post('save', async function (doc, next) {
+    await mailJs.sendMail(doc.username, doc.email);
+    next()
+})
+
+userSchema.pre('findOneAndUpdate', async function (next) {
+    try {
+        const update = this.getUpdate();
+        const user = await this.model.findOne(this.getQuery());
+
+        if (update.password) {
+            const isModified = await bcryptFunction.compareHashingPass(update.password, user.password);
+
+            if (!isModified) {
+                update.password = await bcryptFunction.hashing(update.password);
+            } else {
+                delete update.password; // Do not update password if not modified
+            }
+        }
+
+        return next();
+    } catch (error) {
+        next(error); // Pass the error to the next middleware/hook
+    }
+});
 
 module.exports = mongoose.model('Users', userSchema);

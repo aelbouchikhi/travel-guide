@@ -70,6 +70,7 @@ exports.INSUFFICIENT_PERMISSIONS = 'Insufficient permissions'
 exports.INACTIVE_ACCOUNT = 'Account is inactive'
 exports.NO_USERNAME_EMAIL = 'Invalid credentials: username or email is missing'
 exports.NO_PASSWORD = 'Invalid credentials: password is missing'
+exports.INVALID_CURRENT_PASSWORD = 'Your current password in incorect'
 
 //* USER VALIDATION
 exports.ROLE_INVALID = 'Invalid user role'

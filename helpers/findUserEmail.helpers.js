@@ -1,12 +1,12 @@
-const bcrypt = require('bcrypt')
+const mongosse = require('mongoose');
+const userSchema = require('../models/schema/user.schema')
 
-class Hashing{
-    hashPassword = async (password) => {
-        return await bcrypt.hash(password, 10);
-    }
-    compareHashedPassword = async (password, userPassword) =>{
-        return await bcrypt.compare(password, userPassword);
-    }
+
+exports.findUseremail = async (email) => {
+    return await userSchema.findOne({ email });
 }
 
-module.exports = new Hashing;
+exports.findAndUpdate = async (searchBy, toUpdate) => {
+    return await userSchema.findOneAndUpdate(searchBy, toUpdate, { new: true });
+}
+    

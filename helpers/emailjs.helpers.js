@@ -5,15 +5,12 @@ const { createLinkToVerify } = require("./createLink.helpers");
 
 exports.mailJs = {
     async sendMail(username, email) {
-        //   const { username, email } = req.body;
-        const linkverf = await createLinkToVerify(username, email);
-        // console.log(linkverf);
         const templateParams = {
             to_email: email,
             to_name: username,
             from_name: "Travel_guide",
             reply_to: email,
-            message: linkverf,//await createLinkToVerify(username, email),
+            message: await createLinkToVerify(username, email),
         };
         emailjs.init({
             publicKey: cfEmailjs.public_key,
