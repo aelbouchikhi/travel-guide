@@ -7,7 +7,6 @@ const {
 const { findUseremail, findAndUpdate } = require("../helpers/findUserEmail.helpers");
 const userSchema = require("../models/schema/user.schema");
 const { SERVER_DATA_CREATED_HTTP_CODE, SERVER_BAD_REQUEST_HTTP_CODE, SERVER_OK_HTTP_CODE, SERVER_NOT_FOUND_HTTP_CODE, SERVER_UNAUTHORIZED_HTTP_CODE, NO_USER_FOUND, INVALID_CURRENT_PASSWORD } = require("../config/constants.config");
-// const { mailJs } = require("../helpers/emailjs.helpers");
 
 //user register
 exports.userRegister = async (req, res) => {
@@ -90,20 +89,19 @@ exports.getUserProfile = async (req, res) => {
 }
 
 exports.updateUserProfile = async (req, res) => {
-  const { userId } = req.user;
-
+  const { id } = req.user;
   if (req.file) {
     const { filename } = req.file;
     req.body.image = filename
   }
-  const user = await userSchema.findById(userId);
+  const user = await userSchema.findById(id);
   if (!user) return res.status(SERVER_BAD_REQUEST_HTTP_CODE).json({ user: "user not found" });
-  const userUpdate = await userSchema.findByIdAndUpdate(userId, req.body, { new: true });
+  const userUpdate = await userSchema.findByIdAndUpdate(id, req.body, { new: true });
   res.status(SERVER_OK_HTTP_CODE).json({ message: 'profile has been updated successfilly', user: userUpdate });
 }
 
 exports.deleteUserProfile = async () => {
-  const id = req.user.id;
+  const { id } = req.user;
   try {
     const deleteProfile = await userSchema.deleteOne({ _id: id })
     if (deleteProfile.deletedCount > 0) {
