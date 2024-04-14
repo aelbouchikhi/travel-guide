@@ -4,7 +4,7 @@ const {
   matshPassword,
   bcryptFunction,
 } = require("../helpers/bcrypt.helpers");
-const { findUseremail, findAndUpdate } = require("../helpers/findUserEmail.helpers");
+const { findAndUpdate, findUserByEmail } = require("../models/methods/usersQuery.methods");
 const userSchema = require("../models/schema/user.schema");
 const { SERVER_DATA_CREATED_HTTP_CODE, SERVER_BAD_REQUEST_HTTP_CODE, SERVER_OK_HTTP_CODE, SERVER_NOT_FOUND_HTTP_CODE, SERVER_UNAUTHORIZED_HTTP_CODE, NO_USER_FOUND, INVALID_CURRENT_PASSWORD } = require("../config/constants.config");
 
@@ -35,11 +35,11 @@ exports.userRegister = async (req, res) => {
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const User = await findUseremail(email);
+    const User = await findUserByEmail(email);
     if (!User) return res.status(SERVER_NOT_FOUND_HTTP_CODE).send("User not found");
     const checkPassword = await bcryptFunction.compareHashingPass(password, User.password);
     if (!checkPassword) return res.status(SERVER_NOT_FOUND_HTTP_CODE).send("Your email or password incorrect");
-    const token = await tokenFunction.generateToken({ username: User.username, email: User.email, id: User._id });
+    const token = await tokenFunction.generateToken({ username: User.username, email: User.email, id: User._id, role: User.role });
     res.cookie("tokenLogin", token);
     res.status(SERVER_OK_HTTP_CODE).json({ message: "user logged in succes", token: token });
   } catch (err) {
@@ -66,7 +66,7 @@ exports.resetPassword = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
   const { token } = req.params;
   const User = await tokenFunction.verifyToken(token);
-  const UserDocument = await findUseremail(User.email);
+  const UserDocument = await findUserByEmail(User.email);
   if (!UserDocument) return res.send(`You Are Not The User ${User.email}`);
   if (UserDocument.isVerified) return res.send(`your account verified`);
   await findAndUpdate({ email: User.email }, { isVerified: true });
@@ -92,7 +92,7 @@ exports.updateUserProfile = async (req, res) => {
   const { id } = req.user;
   if (req.file) {
     const { filename } = req.file;
-    req.body.image = filename
+    req.body.image = filename;
   }
   const user = await userSchema.findById(id);
   if (!user) return res.status(SERVER_BAD_REQUEST_HTTP_CODE).json({ user: "user not found" });
@@ -100,7 +100,7 @@ exports.updateUserProfile = async (req, res) => {
   res.status(SERVER_OK_HTTP_CODE).json({ message: 'profile has been updated successfilly', user: userUpdate });
 }
 
-exports.deleteUserProfile = async () => {
+exports.deleteUserProfile = async (req, res) => {
   const { id } = req.user;
   try {
     const deleteProfile = await userSchema.deleteOne({ _id: id })
