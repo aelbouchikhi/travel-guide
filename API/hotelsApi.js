@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { server } = require("../config/all.config");
 
 exports.getHotelsData = async (coordinates) => {
   try {
@@ -20,9 +21,9 @@ exports.getHotelsData = async (coordinates) => {
         lang: "en_US",
       },
       headers: {
-        "X-RapidAPI-Key": "df3e6d2bcemshaa39151811cc1a9p17b3ebjsn798d4b7458b8",
-        "X-RapidAPI-Host": "travel-advisor.p.rapidapi.com",
-      },
+        'X-RapidAPI-Key': server.API_KEY,
+        'X-RapidAPI-Host': server.API_HOST,
+      }
     };
 
     return await axios.request(options);

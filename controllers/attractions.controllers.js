@@ -3,7 +3,7 @@ const { getAttractionsData } = require('../API/attractoinsApi');
 const { getDetailsApi } = require('../API/getDetailsApi');
 const { getPlaceCoordinates } = require('../API/getPlaceCoordinates');
 const { getPlaceData } = require('../API/getPlaceDataApi');
-const { checkQueries } = require('../models/methods/checkQueries');
+const { checkQueries, checkAttracionsQueries } = require('../models/methods/checkAttractionsQueries');
 
 // exports.getAllAttractions = async (req,res)=>{
 //     const location = req.query.location;
@@ -14,13 +14,13 @@ const { checkQueries } = require('../models/methods/checkQueries');
 //     res.json({attractions: attractions})
 // } 
 exports.attractionsQueries = async (req, res)=> {
-    const data = await checkQueries(req, res)
+    const data = await checkAttracionsQueries(req, res)
     res.json({data: data})
 }
 
 exports.getAttractionsById = async (req,res)=>{
     const {id} = req.params;
-    const response = await getDetailsApi(id);
+    const response = await getDetailsApi(id, 'attractions');
     const attractionDetails =  response.data;
 
     res.json({Details:{
@@ -36,7 +36,8 @@ exports.getAttractionsById = async (req,res)=>{
             count_3: attractionDetails.rating_histogram.count_3,
             count_4: attractionDetails.rating_histogram.count_4,
             count_5: attractionDetails.rating_histogram.count_5,
-        }
+        },
+        imageUrl: attractionDetails.photo.images.original.url
     }})
 }
 exports.getAttractionsCategories = async (req,res)=>{

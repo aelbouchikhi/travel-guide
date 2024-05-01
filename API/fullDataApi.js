@@ -4,11 +4,10 @@ const { getHotelsData } = require("./hotelsApi");
 const { getResturantsData } = require("./resturantsApi");
 
 exports.fullDataApi = async (req, res) => {
-  const location = req.query.search;
+  const location = req.query.q;
   const coordinatesOfLoaction = await getPlaceCoordinates(location);
 
   const resturantsResponseApi = await getResturantsData(coordinatesOfLoaction);
-  l;
   const resturantsData = resturantsResponseApi.data.data;
   const hotelsResponseApi = await getHotelsData(coordinatesOfLoaction);
   const hotelsData = hotelsResponseApi.data.data;
