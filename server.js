@@ -2,17 +2,16 @@ const express = require("express");
 const { server } = require("./config/all.config");
 const searchRouter = require("./routes/searchRouter");
 
-
 const MainRouter = require("./routes/MainRouter");
 const app = express();
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 const { mongoose } = require("./config/mongoose.config");
 
 app.use(cookieParser());
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', searchRouter);
+app.use("/api", searchRouter);
 app.use("/api", MainRouter);
 
 mongoose;
