@@ -4,15 +4,36 @@ const {
   matshPassword,
   bcryptFunction,
 } = require("../helpers/bcrypt.helpers");
-const { findAndUpdate, findUserByEmail } = require("../models/methods/usersQuery.methods");
+const {
+  findAndUpdate,
+  findUserByEmail,
+} = require("../models/methods/usersQuery.methods");
 const userSchema = require("../models/schema/user.schema");
-const { SERVER_DATA_CREATED_HTTP_CODE, SERVER_BAD_REQUEST_HTTP_CODE, SERVER_OK_HTTP_CODE, SERVER_NOT_FOUND_HTTP_CODE, SERVER_UNAUTHORIZED_HTTP_CODE, NO_USER_FOUND, INVALID_CURRENT_PASSWORD } = require("../config/constants.config");
+const {
+  SERVER_DATA_CREATED_HTTP_CODE,
+  SERVER_BAD_REQUEST_HTTP_CODE,
+  SERVER_OK_HTTP_CODE,
+  SERVER_NOT_FOUND_HTTP_CODE,
+  SERVER_UNAUTHORIZED_HTTP_CODE,
+  NO_USER_FOUND,
+  INVALID_CURRENT_PASSWORD,
+} = require("../config/constants.config");
 
 //user register
 exports.userRegister = async (req, res) => {
   try {
-    const { firstname, lastname, username, email, password, age, sex, country, phoneNumber } = req.body;
-    const { filename } = req.file;
+    const {
+      firstname,
+      lastname,
+      username,
+      email,
+      password,
+      age,
+      sex,
+      country,
+      phoneNumber,
+    } = req.body;
+    // const { filename } = req.file;
     const newuser = new userSchema({
       firstname,
       lastname,
@@ -23,7 +44,7 @@ exports.userRegister = async (req, res) => {
       sex,
       country,
       phoneNumber,
-      image: filename
+      // image: filename
     });
     const userRegistered = await newuser.save();
     res.status(SERVER_DATA_CREATED_HTTP_CODE).json(userRegistered);
@@ -36,14 +57,30 @@ exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const User = await findUserByEmail(email);
-    if (!User) return res.status(SERVER_NOT_FOUND_HTTP_CODE).send("User not found");
-    const checkPassword = await bcryptFunction.compareHashingPass(password, User.password);
-    if (!checkPassword) return res.status(SERVER_NOT_FOUND_HTTP_CODE).send("Your email or password incorrect");
-    const token = await tokenFunction.generateToken({ username: User.username, email: User.email, id: User._id, role: User.role });
+    if (!User)
+      return res.status(SERVER_NOT_FOUND_HTTP_CODE).send("User not found");
+    const checkPassword = await bcryptFunction.compareHashingPass(
+      password,
+      User.password
+    );
+    if (!checkPassword)
+      return res
+        .status(SERVER_NOT_FOUND_HTTP_CODE)
+        .send("Your email or password incorrect");
+    const token = await tokenFunction.generateToken({
+      username: User.username,
+      email: User.email,
+      id: User._id,
+      role: User.role,
+    });
     res.cookie("tokenLogin", token);
-    res.status(SERVER_OK_HTTP_CODE).json({ message: "user logged in succes", token: token });
+    res
+      .status(SERVER_OK_HTTP_CODE)
+      .json({ message: "user logged in succes", token: token });
   } catch (err) {
-    return res.status(SERVER_UNAUTHORIZED_HTTP_CODE).json({ messageError: err.message });
+    return res
+      .status(SERVER_UNAUTHORIZED_HTTP_CODE)
+      .json({ messageError: err.message });
   }
 };
 
@@ -76,17 +113,17 @@ exports.verifyEmail = async (req, res) => {
 exports.getUserProfile = async (req, res) => {
   const { id } = req.user;
   try {
-    const userProfile = await userSchema.findById(id)
+    const userProfile = await userSchema.findById(id);
     if (userProfile) {
       return res.json(userProfile);
     } else {
-      return res.status(404).json({ message: NO_USER_FOUND })
-    };
+      return res.status(404).json({ message: NO_USER_FOUND });
+    }
   } catch (err) {
-    console.log(err)
-    res.status(500).json({ message: 'Erreur de serveur' })
+    console.log(err);
+    res.status(500).json({ message: "Erreur de serveur" });
   }
-}
+};
 
 exports.updateUserProfile = async (req, res) => {
   const { id } = req.user;
@@ -95,22 +132,30 @@ exports.updateUserProfile = async (req, res) => {
     req.body.image = filename;
   }
   const user = await userSchema.findById(id);
-  if (!user) return res.status(SERVER_BAD_REQUEST_HTTP_CODE).json({ user: "user not found" });
-  const userUpdate = await userSchema.findByIdAndUpdate(id, req.body, { new: true });
-  res.status(SERVER_OK_HTTP_CODE).json({ message: 'profile has been updated successfilly', user: userUpdate });
-}
+  if (!user)
+    return res
+      .status(SERVER_BAD_REQUEST_HTTP_CODE)
+      .json({ user: "user not found" });
+  const userUpdate = await userSchema.findByIdAndUpdate(id, req.body, {
+    new: true,
+  });
+  res.status(SERVER_OK_HTTP_CODE).json({
+    message: "profile has been updated successfilly",
+    user: userUpdate,
+  });
+};
 
 exports.deleteUserProfile = async (req, res) => {
   const { id } = req.user;
   try {
-    const deleteProfile = await userSchema.deleteOne({ _id: id })
+    const deleteProfile = await userSchema.deleteOne({ _id: id });
     if (deleteProfile.deletedCount > 0) {
-      return res.status(200).json({ message: 'Profil supprimé avec succès' });
+      return res.status(200).json({ message: "Profil supprimé avec succès" });
     } else {
-      return res.status(404).json({ message: 'Profil introuvable' });
+      return res.status(404).json({ message: "Profil introuvable" });
     }
   } catch (err) {
-    console.log(err)
-    return res.send(500).json({ message: 'Erreur de serveur' });
+    console.log(err);
+    return res.send(500).json({ message: "Erreur de serveur" });
   }
-}
+};
