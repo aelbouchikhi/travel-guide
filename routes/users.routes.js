@@ -8,13 +8,22 @@ const {
   verifyEmail,
   userRegister,
   loginUser,
+  verifyToken,
 } = require("../controllers/users.controllers");
 const { xssMiddleware } = require("../middleware/xss.middleware");
-const { validatorMiddleware } = require("../middleware/expresssValidator.middleware");
+const {
+  validatorMiddleware,
+} = require("../middleware/expresssValidator.middleware");
 const { upload } = require("../middleware/multer.middleware");
 const { isAuth } = require("../middleware/isAuth.middleware");
 
-usersRouter.post("/register", upload.single("image"), xssMiddleware, validatorMiddleware, userRegister); // User registration
+usersRouter.post(
+  "/register",
+  upload.single("image"),
+  xssMiddleware,
+  validatorMiddleware,
+  userRegister
+); // User registration
 usersRouter.post("/login", loginUser); // User login
 usersRouter.post("/resetPassword", resetPassword); // Reset User Password
 usersRouter.get("/verify/:token", verifyEmail);

@@ -1,6 +1,7 @@
 const { tokenFunction } = require('../helpers/jwt');
 
 exports.isAuth = (req, res, next) => {
+    console.log("hello");
     const tokenWithBearrer = req.headers.authorization;
     let token;
     if (tokenWithBearrer) {

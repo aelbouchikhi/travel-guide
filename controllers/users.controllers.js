@@ -22,6 +22,8 @@ const {
 //user register
 exports.userRegister = async (req, res) => {
   try {
+    console.log("ara hna");
+    console.log(req.body);
     const {
       firstname,
       lastname,
@@ -33,7 +35,8 @@ exports.userRegister = async (req, res) => {
       country,
       phoneNumber,
     } = req.body;
-    // const { filename } = req.file;
+
+    const { filename } = req.file ? req.file : "";
     const newuser = new userSchema({
       firstname,
       lastname,
@@ -44,7 +47,7 @@ exports.userRegister = async (req, res) => {
       sex,
       country,
       phoneNumber,
-      // image: filename
+      image: filename,
     });
     const userRegistered = await newuser.save();
     res.status(SERVER_DATA_CREATED_HTTP_CODE).json(userRegistered);
@@ -72,11 +75,24 @@ exports.loginUser = async (req, res) => {
       email: User.email,
       id: User._id,
       role: User.role,
+      image: User.image,
+      phoneNumber: User.phoneNumber,
+      isVerified: User.isVerified,
     });
-    res.cookie("tokenLogin", token);
-    res
-      .status(SERVER_OK_HTTP_CODE)
-      .json({ message: "user logged in succes", token: token });
+    res.status(SERVER_OK_HTTP_CODE).json({
+      success: true,
+      message: "user logged in succes",
+      token: token,
+      user: {
+        username: User.username,
+        email: User.email,
+        id: User._id,
+        role: User.role,
+        image: User.image,
+        phoneNumber: User.phoneNumber,
+        isVerified: User.isVerified,
+      },
+    });
   } catch (err) {
     return res
       .status(SERVER_UNAUTHORIZED_HTTP_CODE)
