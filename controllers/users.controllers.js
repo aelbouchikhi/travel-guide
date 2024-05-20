@@ -18,7 +18,12 @@ const {
   NO_USER_FOUND,
   INVALID_CURRENT_PASSWORD,
 } = require("../config/constants.config");
-
+const path = require("path");
+const fs = require("fs");
+const {
+  cloudinaryUploadImage,
+  cloudinaryRemoveImage,
+} = require("../utils/cloudinary");
 //user register
 exports.userRegister = async (req, res) => {
   try {
@@ -33,7 +38,8 @@ exports.userRegister = async (req, res) => {
       country,
       phoneNumber,
     } = req.body;
-    // const { filename } = req.file;
+    let imagefile =
+      "https://res.cloudinary.com/dignjge0i/image/upload/v1715787336/n1eem38qoyyh6wtldskb.jpg ";
     const newuser = new userSchema({
       firstname,
       lastname,
@@ -44,13 +50,50 @@ exports.userRegister = async (req, res) => {
       sex,
       country,
       phoneNumber,
-      // image: filename
+      image: {
+        url: imagefile,
+        publicId: null,
+      },
     });
     const userRegistered = await newuser.save();
     res.status(SERVER_DATA_CREATED_HTTP_CODE).json(userRegistered);
   } catch (err) {
     res.status(SERVER_BAD_REQUEST_HTTP_CODE).send(err.message);
   }
+};
+//Cloudinary
+exports.profilePhotoUpload = async (req, res) => {
+  const { id } = req.user;
+  //1. validation
+  if (!req.file) {
+    return res.status(400).json({ message: "no file provided" });
+  }
+  //2. Get the path to the image
+  const imagePath = path.join(
+    __dirname,
+    `../public/images/${req.file.filename}`
+  );
+  //3.Upload to Cloudinary
+  const result = await cloudinaryUploadImage(imagePath);
+  //4. Get the user from DB
+  const user = await userSchema.findById(id);
+  //5. Delete the old profile photo if exist
+  if (user.image.publicId !== null) {
+    await cloudinaryRemoveImage(user.image.publicId);
+  }
+  //6. change the profile Photo field in th DB
+  user.image = {
+    url: result.secrue_url,
+    publicId: result.public_id,
+  };
+  await user.save();
+  //7. send response to client
+  res.status(200).json({
+    message: "your profile photo uploaded",
+    image: { url: result.ecure_url, publicId: result.public_id },
+  });
+  //8. Remove image from the server
+  fs.unlinkSync(imagePath);
 };
 
 exports.loginUser = async (req, res) => {

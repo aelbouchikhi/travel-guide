@@ -10,7 +10,7 @@ const cors = require("cors");
 
 app.use(cors());
 app.use(cookieParser());
-app.use(express.json({ extended: true }));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", searchRouter);
