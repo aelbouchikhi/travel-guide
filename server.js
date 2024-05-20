@@ -6,7 +6,9 @@ const MainRouter = require("./routes/MainRouter");
 const app = express();
 const cookieParser = require("cookie-parser");
 const { mongoose } = require("./config/mongoose.config");
+const cors = require("cors");
 
+app.use(cors());
 app.use(cookieParser());
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
