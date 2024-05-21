@@ -25,7 +25,7 @@ adminRouter.post(
 // manage users
 
 adminRouter.get("/userbyid/:id", isAuth.admin, manageUsers.getUsersById);
-adminRouter.get("/allusers", isAuth.admin, manageUsers.getAllUsers);
+adminRouter.get("/allusers", /*isAuth.admin,*/ manageUsers.getAllUsers);
 adminRouter.put(
   "/updateuser/:id",
   upload.single("image"),

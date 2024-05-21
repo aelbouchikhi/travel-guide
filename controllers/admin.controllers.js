@@ -51,7 +51,6 @@ exports.adminControllers = {
   async loginAdmin(req, res) {
     try {
       const { email, password } = req.body;
-      // console.log(email);
       const User = await adminQuery.getMgBySomething(
         userSchema,
         "email",
@@ -89,7 +88,7 @@ exports.adminControllers = {
 exports.manageUsers = {
   async getAllUsers(req, res) {
     try {
-      const users = adminQuery.getMgAll(userSchema);
+      const users = await adminQuery.getMgAll(userSchema);
       if (!users)
         return res.status(SERVER_NOT_FOUND_HTTP_CODE).send("Users not found");
       return res.status(SERVER_OK_HTTP_CODE).json(users);
