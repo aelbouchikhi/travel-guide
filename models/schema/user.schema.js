@@ -53,8 +53,14 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     image: {
-      type: String,
-      required: false,
+      url: {
+        type: String,
+        required: false,
+      },
+      publicId: {
+        type: String,
+        required: false,
+      },
     },
     isVerified: {
       type: Boolean,

@@ -40,15 +40,54 @@ postRouter.get("/", async (req, res) => {
   try {
     console.log("Fetching posts with author usernames...");
     const posts = await Post.find()
-      .populate({
-        path: "author",
-        select: "username", // Assuming 'username' is the field you want from the User collection
-      })
+      .populate({ path: "author" })
       .populate({ path: "likes" })
       .populate({ path: "comments" });
+    console.log(posts);
     res.json(posts);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Define the route to get most engaging posts
+postRouter.get("/most-engaging-posts", async (req, res) => {
+  try {
+    const limit = 10; // Get limit from query params or default to 10
+    const posts = await Post.aggregate([
+      {
+        $project: {
+          author: 1,
+          title: 1,
+          category: 1,
+          image: 1,
+          content: 1,
+          likes: 1,
+          reports: 1,
+          comments: 1,
+          commentsCount: { $size: "$comments" },
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+      { $sort: { commentsCount: -1 } },
+      { $limit: limit },
+    ]);
+
+    // Populate the author, likes, and comments fields
+    const populatedPosts = await Post.populate(posts, [
+      { path: "author" },
+      { path: "likes" },
+      {
+        path: "comments",
+        populate: { path: "user" }, // Assuming each comment has an author
+      },
+    ]);
+
+    res.json(populatedPosts);
+  } catch (error) {
+    console.error("Error fetching most engaging posts:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -137,22 +176,30 @@ postRouter.get("/:id/comments", async (req, res) => {
   }
 });
 
-/*
 // Delete a post
-postRouter.delete("/:id", authMiddleware, async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ error: "Post not found" });
+postRouter.delete(
+  "/:id",
+  /*authMiddleware*/ async (req, res) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      console.log(req.body);
+      const { author } = req.body;
 
-    if (post.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ error: "Unauthorized" });
+      //console.log(author , req.params.id)
+
+      if (!post) return res.status(404).json({ error: "Post not found" });
+
+      if (post.author.toString() !== author.toString()) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      await Post.deleteOne({ _id: post._id });
+      res.json({ message: "Post deleted successfully" });
+    } catch (err) {
+      res.status(500).json({ error: "Server error" });
     }
-
-    await Post.deleteOne({ _id: post._id });
-    res.json({ message: "Post deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
   }
-});
-*/
+);
+
+
 module.exports = postRouter;
